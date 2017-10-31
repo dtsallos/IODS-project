@@ -1,0 +1,18 @@
+---
+title: "README"
+author: "Dimitrios Tsallos"
+output: html_document
+---
+
+## Introduction to Open Data Science
+
+After completing this course I should be able to understand the principles and advantages of using open research tools with open data and understand the possibilities of reproducible research. I should know how to use R, R Studio, R markdown, and GitHub for these tasks and also know how to learn more of these open software tools. I should also know how to apply certain statistical methods of data science, that is, data-driven statistics.
+
+
+*I will be posting [here](https://dtsallos.github.io/IODS-project/) my course assignments from 31^st^ October to 12^th^ December, stay tuned!*
+
+
+![](/Users/dtsallos/Desktop/OneDrive - University of Helsinki/GitHub/IODS-project/humour.jpg)
+
+
+*Note: In case the above link doesn't work, use this for my course diary: https://dtsallos.github.io/IODS-project/ *
