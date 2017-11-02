@@ -15,7 +15,6 @@ output:
 ***
   
 ```{r child = "chapter1.Rmd"}
-![](/humour.jpg)
 ```
   
 *** 
