@@ -3,7 +3,7 @@ title: "IODS course project"
 author: "Dimitrios Tsallos"
 output:
   html_document:
-    theme: jekyll-theme-hacker
+    theme: sandstone
     toc: false
     toc_depth: 2
     fig_caption: true
@@ -19,7 +19,7 @@ output:
   
 *** 
   
-```{r child = "chapter2.Rmd", eval=FALSE, include=FALSE, r child="chapter2.Rmd"}
+```{r child = "chapter2.Rmd", eval=FALSE, include=FALSE}
 ```
 
 ***
