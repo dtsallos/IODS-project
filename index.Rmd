@@ -4,7 +4,7 @@ author: "Dimitrios Tsallos"
 output:
   html_document:
     theme: jekyll-theme-hacker
-    toc: true
+    toc: false
     toc_depth: 2
     fig_caption: true
     fig_width: 6
