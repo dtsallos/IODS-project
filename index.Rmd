@@ -4,8 +4,12 @@ author: "Dimitrios Tsallos"
 output:
   html_document:
     theme: sandstone
-    toc: false
+    highlight: pygments
+    toc: true
+    number_sections: false
     toc_depth: 2
+    toc_float: true
+    smooth_scroll: true
     fig_caption: true
     fig_width: 6
     fig_height: 4
@@ -22,4 +26,4 @@ output:
 ```{r child = "chapter2.Rmd", eval=FALSE, include=FALSE}
 ```
 
-***
+
