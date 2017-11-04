@@ -1,4 +1,4 @@
 
 # About the project
 
-*Hello data science world! You will find my repository [here](https://github.com/dtsallos/IODS-project). I am new to all that, but I have been learning fast, so let's see how far can manage with the many bugs here.* 
+*Hello data science world! You will find my repository [here](https://github.com/dtsallos/IODS-project). I am new to all that, but I have been learning fast, so let's see how far I can manage with the many bugs here.* 
