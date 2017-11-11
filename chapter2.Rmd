@@ -1,6 +1,167 @@
 # 1^st^ Week
 
-*Tools and methods for open and reproducible research*
+## Tools and methods for open and reproducible research
 
 During the first week we went through the general instructions of the course, deadlines, tools to learn etc.- and start working! We get familiar with R, RStudio and GitHub. We create our own GitHub repository: a place on the web to store your course codes and analyses.
 
+# 2^nd^ Week
+
+## Regression and model validation
+
+This week we are learning how to manage with large datatables and create working size tables; a process called data wrangling. We then focus on data analysis, single and multiple regression analysis and model validation. 
+
+### Learning dataset
+
+I will be mostly working with data produced by Kimmo Vehkalahti as part of his work for the study of:
+
+> *"The relationship between learning approaches and students' achievements in an introductory statistics course in Finland"*
+
+* *Preliminary data were presented at a conference in Rio de Janeiro for the 60^th^ World Statistics Congress - ISI2015. Slides are available [here](https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland).*
+
+I am using a shorter version of the dataset after shortening the table to a more manageable size. Here is the structure of the table:
+
+```{r, echo=FALSE}
+
+learning2014 <- read.csv("data/learning2014.csv", header = TRUE, 
+                         colClasses = c("NULL", #exclude the row column
+                                        "factor",  "integer", "integer", "double", "double", "double", "integer") )
+
+# here is the structure of the data
+str(learning2014)
+```
+
+Here, you can see the same data in a table format for your interest.
+
+```{r, echo=FALSE}
+library(DT)
+datatable(learning2014)
+```
+
+
+
+
+
+Here is a summary table of the above data:
+
+```{r, echo=FALSE}
+# summarise data
+summary(learning2014)
+```
+
+But for better visualisation and understanding of the relationship from the available variables, here is a paired plot:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE }
+#load libraries
+library(GGally) 
+library(ggplot2)
+# Draw the plot 
+plot_data <- ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), 
+                     lower = list(combo = wrap("facethist", bins = 20))) + theme_bw()
+
+plot_data
+
+```
+
+
+#### Description:
+
+1. There is almost twice as many female students as there are male students participating in this study
+2. Male students are more likely to show high attitude towards statistics
+3. A negative correlation is observed in male participants points scored and their response to deep and surface question. Female student responses show only little negative correlation between points scored and surface questions. 
+4. Based on the summary analysis *deep*, *surface*, *strategic* questions and *points* are normally distributed as their mean and median values are very close. While age distribution seems to be scewed towards younger participants (SD: 21 - 27 years old), with a few older students (maximum 55 years old). This is expected given that the participants are students. 
+
+
+## Creating a regression model
+
+> Let's see what is the most significant factor affecting the final exam points of a student. 
+
+First, how is the exam points scored affected by the student's attitude, age and strategic skills (based on their average response to strategic questions).
+
+
+```{r, echo=FALSE}
+# fit a linear model
+my_model <- lm(Points ~ Attitude + Age + stra, data = learning2014)
+
+# print out a summary of the model
+summary(my_model)
+
+```
+
+It looks like the most important factor affecting the student's final exam result is purely their *attitude* (p-value > 0.001)! This is a multivariate regression model. Score on strategic and surface questions show no significant relationship with exam points scorred. The R-squared value of 0.22 implies that the model can explain 22 % or about one-fifth of the variation in the outcome.
+
+Here, is the summary of the linear model with the two parameters alone:
+
+```{r, echo=FALSE}
+# fit a linear model
+my_model <- lm(Points ~ Attitude, data = learning2014)
+
+# print out a summary of the model
+summary(my_model)
+
+```
+
+This univariate model explains that the variable of exam points scored is significantly related to the students attitude (p-value > 0). At a theoretical attitude value of zero the points scored would be 11.64 with a standard error 1.83. For every point of attitude increased, there is 0.35 more exam points scored with a standard error of 0.06. 
+
+R-squared is always between 0 and 1 (and as percentage when multiplied by 100): 
+0% indicates that the model explains none of the variability of the response data around its mean. 100% indicates that the model explains all the variability of the response data around its mean. Multiple R-squared is used for evaluating how well the model fits the data. In this case, Multiple R-squared value of 0.19 implies that the model can explain only 19% of the variation in the outcome.
+
+
+So, this is how the model actually looks like:
+
+```{r, echo=FALSE}
+library(ggthemes)
+# initialize plot with data and aesthetic mapping
+p1 <- ggplot(learning2014, aes(x = Attitude, y = Points))+ 
+    geom_point() + 
+    geom_smooth(method = "lm") +
+    ggtitle("Student's Attitude versus exam points scored") + 
+    theme_bw() 
+p1
+```
+
+
+## Graphical model validation
+
+R makes it easy to graphically explore the validity of your model assumptions. If you give a linear model object as the first argument to the plot() function, the function automatically assumes you want diagnostic plots and will produce them. You can check the help page of plotting an lm object by typing ?plot.lm or help(plot.lm) to the R console.
+
+
+```{r, echo=FALSE}
+library(ggfortify)
+
+autoplot(my_model, which= c(1, 2, 5)) +
+     theme_bw()
+```
+
+
+### Residuals vs Fitted plot
+**The Residuals vs Fitted plot** studies the variance of the residuals. This plot represents the deviation of the observed values of an element of a statistical sample from its "theoretical value". The residual of an observed value is the difference between the observed value and the estimated value of the quantity of interest. Here, the linearity of the regression model is supported by a homogeneity of variance (or homoscedasticity) with residuals that appear close to 10 points difference from the fitted values. This is off course with the exception of the observations 145, 56 and 35. 
+* In other words:
+    + We are looking at how well the model describes the variables we are interested in
+    + The target variable is modelled as a linear combination of the model parameters
+    + Errors are normally distributed and have constant variance
+
+```{r, echo=FALSE}
+autoplot(my_model, which= 1) +
+     theme_bw()
+```
+
+
+### Normal Q-Q plot
+A **Q-Q (quantile-quantile) plot** is a probability plot for comparing two probability distributions by plotting their quantiles against each other. Here, the two distributions being compared are the fitted model vs the observed values. Typically the standard deviation of residuals in a sample vary greatly from one datapoint to another even when the errors all have the same standard deviation, thus it does not make sense to compare residuals at different data points without first standartizing. Here, we see that the observations 145, 56 and 35 are again not good representations of the fitted model. Our model here is normally distrubuted and the non fitting observations appear at the extremes of the distribution and are expected to have very little impact on the model (this is studied as part of the next graph). 
+
+```{r, echo=FALSE}
+autoplot(my_model, which= 2) +
+     theme_bw()
+```
+
+
+### Residuals vs Leverage plot
+Finally, we plotted the **standardised residuals against the leverage** of the fitted model. Leverage is a measure of how far away the independent variable values of an observation are from those of the other observations. Plotting standardised residuals against leverage shows the impact of every single observation on the fitted model. There are some results that have a high impact on the model which suggests that the results are driven by a few data points; that's what this plot is intended to help us determine.  Interestingly, here the most influencial points are again 56 and 35 but 145 does not have very high leverage, but now, 71, a new observation appeared.
+
+```{r, echo=FALSE}
+autoplot(my_model, which= 5) +
+     theme_bw()
+```
+
+
+*Note: A very good explanation came from this [link](https://stats.stackexchange.com/questions/58141/interpreting-plot-lm).*
