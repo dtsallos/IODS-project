@@ -141,7 +141,7 @@ prop.table() %>%
 addmargins
 ```
 
-My hypothesis was pretty bad and it is proven by this data. Overall, nearly 95 % of the predictions are wrong! At least my faith in humanity is now restored and some kind of easy stereotypes can be ignored (as they already were).
+My hypothesis was pretty bad and it is proven by this data. At least my faith in humanity is now restored and some kind of easy stereotypes can be ignored (as they already were).
 
 The variables that actually work from my model are here:
 
