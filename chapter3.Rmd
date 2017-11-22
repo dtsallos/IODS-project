@@ -10,7 +10,6 @@ output: html_document
 ## Logistic Regression
 
 ```{r, include=FALSE}
-knitr::opts_chunk$set(include = FALSE)
 # set working directory
 setwd( "/Users/dtsallos/Desktop/OneDrive - University of Helsinki/GitHub/IODS-project/")
 # read the alc data into memory
@@ -45,9 +44,12 @@ str(alc)
 
 Using the given data, we are going to study student's behavior with regards to alcohol consumption. According to stereotypes, students who are being raised by one of the two parents alone (Pstatus = A, "apart") are more likely to seek alcohol to soothen emotional distress. When those students are members of big families (famsize = GT3, "greater than 3") the situation could lead to higher alcohol consumption. These students are also more likely to miss class (absences are numeric from 0 to 93). While those students who are busy with extracurricular activities (activities = yes) could be distracted, get more supervision and support which leads to less alcohol consumption and less abcences recorded from class. Let's study now if that is true based on the given data sample.  
 
-famsize - family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3) 
+famsize - family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3)  
+
 Pstatus - parent's cohabitation status (binary: 'T' - living together or 'A' - apart) 
+
 activities - extra-curricular activities (binary: yes or no) 
+
 absences - number of school absences (numeric: from 0 to 93) 
 
 
@@ -88,13 +90,11 @@ p1 + ggtitle("Absence distribution") +
 
 ### Logistic Regretion
 
-
-Use logistic regression to statistically explore the relationship between your chosen variables and the binary high/low alcohol consumption variable as the target variable. Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this). (0-5 points)
-
+Here is a summary of the fitted model testing the above hypothesis. This summary includes odds ratios and confidence intervals: 
 
 ```{r, echo=FALSE, message=FALSE}
 # find the model with glm()
-m <- glm(high_use ~ famsize + activities + Pstatus + absences, data = alc, family = "binomial")
+m <- glm(high_use ~ famsize + (activities == "no") + (Pstatus == "A") + absences, data = alc, family = "binomial")
 
 # compute odds ratios (OR)
 OR <- coef(m) %>% exp
@@ -113,12 +113,8 @@ coef(m)
 cbind(OR, CI)
 ```
 
-Present and interpret a summary of the fitted model.
-
-Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them.
 
 Interpret the results and compare them to your previously stated hypothesis.
-
 
 
 ### Explore predictive power
@@ -204,6 +200,6 @@ addmargins
 
 ```
 
-### Appologies
+### Apologies
 
 I am sorry if you have to correct this work, it is done last minute and on the fly. Bad timing to realise that I hadn't understood/needed to study more regarding the topic of this week's matterial. Good luck with your assignment. :)
