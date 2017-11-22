@@ -94,7 +94,7 @@ Here is a summary of the fitted model testing the above hypothesis. This summary
 
 ```{r, echo=FALSE, message=FALSE}
 # find the model with glm()
-m <- glm(high_use ~ famsize + (activities == "no") + (Pstatus == "A") + absences, data = alc, family = "binomial")
+m <- glm(high_use ~ (alc$famsize == "GT3") + (activities == "no") + (Pstatus == "A") + absences, data = alc, family = "binomial")
 
 # compute odds ratios (OR)
 OR <- coef(m) %>% exp
@@ -115,7 +115,7 @@ cbind(OR, CI)
 
 
 Interpret the results and compare them to your previously stated hypothesis.
-
+According to the above values, my hypothesis has not been proven to be correct. A large family size, parents living apart and lack of extracurricular activities have very little correlation with the outcome. To be more precise, the odds that a student will be consuming high levels of alcohol is nearly always (OR = 1.09). At the same time, the predictive value of the rest of the variables selected has a wide spread from very unlikely (Confidence intervals = 0.33) to very likely (CI = 2.04).
 
 ### Explore predictive power
 
