@@ -41,7 +41,7 @@ str(alc)
 ```
 
 
-### Hypothesis
+## Hypothesis
 
 Using the given data, we are going to study student's behavior with regards to alcohol consumption. According to stereotypes, students who are being raised by one of the two parents alone (Pstatus = A, "apart") are more likely to seek alcohol to soothen emotional distress. When those students are members of big families (famsize = GT3, "greater than 3") the situation could lead to higher alcohol consumption. These students are also more likely to miss class (absences are numeric from 0 to 93). While those students who are busy with extracurricular activities (activities = yes) could be distracted, get more supervision and support which leads to less alcohol consumption and less abcences recorded from class. Let's study now if that is true based on the given data sample.  
 
@@ -51,85 +51,159 @@ activities - extra-curricular activities (binary: yes or no)
 absences - number of school absences (numeric: from 0 to 93) 
 
 
-## 
+## Visualise data trends 
 
 Numerically and graphically explore the distributions of your chosen variables and their relationships with alcohol consumption (use for example cross-tabulations, bar plots and box plots). Comment on your findings and compare the results of your exploration to your previously stated hypotheses. (0-5 points)
 
 
+Comments missing...
 
-
-```{r}
+```{r, echo=FALSE}
 library(dplyr)
-#make a shorter table to use for your own hypothesis testing exercise
-alc2 <- select(alc, famsize, Pstatus, activities, absences, alc_use, high_use) 
 library(gmodels)
-CrossTable(alc$high_use, alc$famsize)
-CrossTable(alc$high_use, alc$Pstatus)
-CrossTable(alc$high_use, alc$activities)
-#CrossTable(alc$high_use, alc$absences) can't do that one Make a plot instead
+CrossTable(alc$high_use, alc$famsize, dnn = c("High alcohol use", "Family size"))
+CrossTable(alc$high_use, alc$Pstatus, dnn = c("High alcohol use", "Parental status"))
+CrossTable(alc$high_use, alc$activities, dnn = c("High alcohol use", "Extra-curricular activities"))
 
-p2 <- ggplot(alc2, aes(x = absences, fill = high_use))
-p2 + geom_bar() + facet_wrap("high_use") + ggtitle("#") + theme_bw()
-#maybe density plot is better
+```
+
+
+
+
+```{r, echo=FALSE}
+library(ggplot2)
 p1 <- ggplot(alc, aes(x= absences, fill=high_use)) + geom_density(alpha=.3)
-p1 + ggtitle("Absence distribution") + theme_bw()
-#calculate mean and median to see the scewens of the data?
-```
 
-
- 4. Absences: From the table, we can see that students those were away from school had higher consumption of alcohal. Similarly, box plot shows that higher the absence leads to more consumption of alcohal.
-
-Male high users are more likely to be absent from class. Females are more likely to be absent in all groups..
-```{r}
-library(GGally); library(ggplot2) # load libraries
-#tbl <- alc %>% select(sex, absences, freetime, activities, alc_use, high_use) # select interesting variables
-
-p3 <- ggplot(alc, aes(high_use, absences, fill = sex)) + geom_boxplot() + theme_bw() #add dots all over the plot
-p3 #+ ggtitle etc
+p1 + ggtitle("Absence distribution") + 
+    theme_bw() + 
+    annotate("text", x = 16, y= 0.14,
+                 label= paste( "High alchol Average =", round( mean( alc[ which(alc$high_use == TRUE), 30  ] ), digits = 2 ) ),
+             vjust=1.5, size=6) + 
+    annotate("text", x = 15, y= 0.125,
+                 label= paste( "High alcohol Median =", median( alc[ which(alc$high_use == TRUE), 30  ] )  ), 
+             vjust=1.5, size=6)
 
 ```
 
 
+### Logistic Regretion
+
+
+Use logistic regression to statistically explore the relationship between your chosen variables and the binary high/low alcohol consumption variable as the target variable. Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this). (0-5 points)
+
+
+```{r, echo=FALSE, message=FALSE}
+# find the model with glm()
+m <- glm(high_use ~ famsize + activities + Pstatus + absences, data = alc, family = "binomial")
+
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(m) %>% exp
+
+# print out a summary of the model
+summary(m)
+
+# print out the coefficients of the model
+coef(m)
+
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+```
+
+Present and interpret a summary of the fitted model.
+
+Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them.
+
+Interpret the results and compare them to your previously stated hypothesis.
 
 
 
+### Explore predictive power
+
+Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy. (0-3 points)
+
+Here is how my current model is performing:
+
+```{r, echo=FALSE}
+# predictions versus the actual values
+    
+# predict() the probability of high_use
+probabilities <- predict(m, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = probabilities > 0.5 )
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction) %>% 
+prop.table() %>% 
+addmargins
+```
+
+My hypothesis was pretty bad and it is proven by this data. Overall, nearly 95 % of the predictions are wrong! At least my faith in humanity is now restored and some kind of easy stereotypes can be ignored (as they already were).
+
+The variables that actually work from my model are here:
+
+```{r, echo=FALSE, message=FALSE}
+# new model
+m2 <- glm(high_use ~ absences, data = alc, family = "binomial")
+
+# compute odds ratios (OR)
+OR2 <- coef(m2) %>% exp
+
+# compute confidence intervals (CI)
+CI2 <- confint(m2) %>% exp
 
 
+# predict() the probability of high_use
+probabilities2 <- predict(m2, type = "response")
 
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability2 = probabilities2)
 
-```{r, eval=FALSE, include=FALSE}
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction2 = probabilities2 > 0.5 )
 
-gather(alc2) %>%
-  ggplot(aes(value)) + 
-  geom_bar() +
-  facet_wrap("key", scales = "free") 
+# print out a summary of the model
+summary(m2)
 
-## somehting Vs alc_use or HIgh_use
+# print out the coefficients of the model
+coef(m2)
 
-
-
-
-
-p1 <- ggplot(alc, aes(x= G3, fill=high_use)) + geom_density(alpha=.3)
-p1 + ggtitle("Final grade distribution") + theme_bw()
-
-
-p1 <- ggplot(alc, aes(x= absences, fill=sex)) + geom_density(alpha=.3)
-p1 + ggtitle("Absence distribution") + theme_bw()
-
-
-p2 <- ggplot(alc, aes(x = high_use, fill = sex))
-p2 + geom_bar() + facet_wrap("sex") + ggtitle("Student sex and alcohol consumption") + theme_bw()
+# print out the odds ratios with their confidence intervals
+cbind(OR2, CI2)
 
 ```
 
 
+I know, it is only one variable...but it seems that students who missed class regularly are more likely to be at risk of being high alcohol consumers. 
+
+Let's see how these two models compare with a likelihood ratio test:
+
+```{r, echo=FALSE}
+anova(m, m2, test="LRT")
+```
 
 
+```{r, echo=FALSE}
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+g <- ggplot(alc, aes(x = probability, y = high_use, col= prediction2))
 
+# define the geom as points and draw the plot
+g + geom_point()
 
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction2) %>% 
+prop.table() %>% 
+addmargins
 
+```
 
+### Appologies
 
-
-
+I am sorry if you have to correct this work, it is done last minute and on the fly. Bad timing to realise that I hadn't understood/needed to study more regarding the topic of this week's matterial. Good luck with your assignment. :)
