@@ -200,7 +200,5 @@ addmargins
 
 ```
 
-### Apologies
 
-I am sorry if you have to correct this work, it is done last minute and on the fly. Bad timing to realise that I hadn't understood/needed to study more regarding the topic of this week's matterial. Good luck with your assignment. :)
 
